@@ -1,0 +1,118 @@
+// src/lib/mockData.ts
+import { MissingPerson, Statistics, Sighting } from '@/types';
+
+export const INDIAN_STATES = [
+  'Andhra Pradesh','Arunachal Pradesh','Assam','Bihar','Chhattisgarh',
+  'Goa','Gujarat','Haryana','Himachal Pradesh','Jharkhand','Karnataka',
+  'Kerala','Madhya Pradesh','Maharashtra','Manipur','Meghalaya','Mizoram',
+  'Nagaland','Odisha','Punjab','Rajasthan','Sikkim','Tamil Nadu','Telangana',
+  'Tripura','Uttar Pradesh','Uttarakhand','West Bengal',
+  'Delhi','Jammu & Kashmir','Ladakh',
+];
+
+export const mockPersons: MissingPerson[] = [
+  {
+    id: '1', caseId: 'FTI-2024-001', firNumber: 'FIR-2024-1234',
+    name: 'Aarav Sharma', age: 8, gender: 'male',
+    lastSeenDate: '2024-12-10', lastSeenLocation: 'Connaught Place Metro Station',
+    lastSeenAddress: 'Rajiv Chowk, New Delhi – 110001',
+    latitude: 28.6328, longitude: 77.2197,
+    description: 'Wearing blue school uniform, black backpack. Has a small scar on his left chin.',
+    distinguishingMarks: 'Small scar on left chin, birthmark on right arm',
+    photos: ['https://ui-avatars.com/api/?name=Aarav+Sharma&size=400&background=3B82F6&color=fff'],
+    status: 'investigating', reportedBy: 'Ramesh Sharma', reportedAt: '2024-12-10T14:30:00Z',
+    updatedAt: '2024-12-11T09:00:00Z', assignedOfficer: 'SI Priya Singh',
+    district: 'Central Delhi', state: 'Delhi',
+    contactName: 'Ramesh Sharma', contactPhone: '+91-9876543210',
+    contactEmail: 'ramesh.sharma@email.com',
+  },
+  {
+    id: '2', caseId: 'FTI-2024-002',
+    name: 'Priya Devi', age: 45, gender: 'female',
+    lastSeenDate: '2024-12-05', lastSeenLocation: 'Howrah Railway Station',
+    lastSeenAddress: 'Howrah Station Rd, Howrah – 711101',
+    latitude: 22.5839, longitude: 88.3424,
+    description: 'Wearing red saree, silver bangles. Has grey streaks in hair. Possible dementia.',
+    distinguishingMarks: 'Grey streaks in hair, mole below left eye',
+    photos: ['https://ui-avatars.com/api/?name=Priya+Devi&size=400&background=EC4899&color=fff'],
+    status: 'sighting_reported', reportedBy: 'Suresh Kumar', reportedAt: '2024-12-05T10:00:00Z',
+    updatedAt: '2024-12-12T16:45:00Z', assignedOfficer: 'ASI Mohan Das',
+    district: 'Howrah', state: 'West Bengal',
+    contactName: 'Suresh Kumar', contactPhone: '+91-9123456789',
+  },
+  {
+    id: '3', caseId: 'FTI-2024-003',
+    name: 'Mohammed Arif', age: 17, gender: 'male',
+    lastSeenDate: '2024-11-28', lastSeenLocation: 'Charminar Area',
+    lastSeenAddress: 'Charminar, Hyderabad – 500002',
+    latitude: 17.3616, longitude: 78.4747,
+    description: 'Wearing jeans and white kurta. Was on his way to coaching class.',
+    photos: ['https://ui-avatars.com/api/?name=Mohammed+Arif&size=400&background=10B981&color=fff'],
+    status: 'open', reportedBy: 'Abdul Arif', reportedAt: '2024-11-28T18:00:00Z',
+    updatedAt: '2024-11-29T08:00:00Z',
+    district: 'Hyderabad', state: 'Telangana',
+    contactName: 'Abdul Arif', contactPhone: '+91-9988776655',
+  },
+  {
+    id: '4', caseId: 'FTI-2024-004',
+    name: 'Sunita Patel', age: 32, gender: 'female',
+    lastSeenDate: '2024-10-15', lastSeenLocation: 'Surat Textile Market',
+    lastSeenAddress: 'Ring Road, Surat – 395002',
+    latitude: 21.1702, longitude: 72.8311,
+    description: 'Wearing green salwar kameez. Works as a textile worker.',
+    photos: ['https://ui-avatars.com/api/?name=Sunita+Patel&size=400&background=8B5CF6&color=fff'],
+    status: 'found', reportedBy: 'Vijay Patel', reportedAt: '2024-10-15T12:00:00Z',
+    updatedAt: '2024-11-02T14:00:00Z', assignedOfficer: 'Inspector Rakesh',
+    district: 'Surat', state: 'Gujarat',
+    contactName: 'Vijay Patel', contactPhone: '+91-9765432101',
+    matchConfidence: 94.7,
+  },
+  {
+    id: '5', caseId: 'FTI-2024-005',
+    name: 'Ravi Kumar', age: 65, gender: 'male',
+    lastSeenDate: '2024-12-01', lastSeenLocation: 'Varanasi Ghats',
+    lastSeenAddress: 'Dashashwamedh Ghat, Varanasi – 221001',
+    latitude: 25.3099, longitude: 83.0105,
+    description: 'Elderly man with white dhoti and shawl. Possible Alzheimer\'s.',
+    distinguishingMarks: 'Long white beard, walks with a wooden stick',
+    photos: ['https://ui-avatars.com/api/?name=Ravi+Kumar&size=400&background=F59E0B&color=fff'],
+    status: 'investigating', reportedBy: 'Anita Kumar', reportedAt: '2024-12-01T08:30:00Z',
+    updatedAt: '2024-12-03T11:00:00Z',
+    district: 'Varanasi', state: 'Uttar Pradesh',
+    contactName: 'Anita Kumar', contactPhone: '+91-9543210876',
+  },
+];
+
+export const mockSightings: Sighting[] = [
+  {
+    id: 's1', caseId: 'FTI-2024-002',
+    reportedBy: 'Citizen', latitude: 22.5726, longitude: 88.3639,
+    address: 'Park Street, Kolkata',
+    description: 'Saw a woman matching the description near the park.',
+    verifiedByAI: true, confidence: 87.3,
+    reportedAt: '2024-12-12T10:00:00Z', status: 'verified',
+  },
+];
+
+export const mockStatistics: Statistics = {
+  totalCases: 1247, openCases: 834, resolvedCases: 413,
+  avgResolutionDays: 18.4, sightingsToday: 23,
+  stateData: [
+    { state: 'Uttar Pradesh', cases: 234, resolved: 89 },
+    { state: 'West Bengal',   cases: 187, resolved: 76 },
+    { state: 'Maharashtra',   cases: 156, resolved: 68 },
+    { state: 'Bihar',         cases: 143, resolved: 54 },
+    { state: 'Delhi',         cases: 128, resolved: 61 },
+    { state: 'Telangana',     cases: 98,  resolved: 42 },
+    { state: 'Gujarat',       cases: 87,  resolved: 39 },
+    { state: 'Rajasthan',     cases: 76,  resolved: 31 },
+  ],
+  monthlyData: [
+    { month: 'Jul', filed: 98,  resolved: 45 },
+    { month: 'Aug', filed: 112, resolved: 52 },
+    { month: 'Sep', filed: 87,  resolved: 61 },
+    { month: 'Oct', filed: 134, resolved: 78 },
+    { month: 'Nov', filed: 108, resolved: 65 },
+    { month: 'Dec', filed: 143, resolved: 82 },
+  ],
+};
