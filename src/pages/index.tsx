@@ -47,7 +47,7 @@ export default function Home() {
     alerts: <Alerts />,
     profile: <Profile />,
     age: <AgeProgression />,
-    timeline: <CaseTimeline />,
+    timeline: <AllCases />,
     pdf: <PDFReport />,
     team: <Team />,
   };
