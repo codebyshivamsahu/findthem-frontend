@@ -6,7 +6,7 @@ import { CheckCircle, Clock, X, MapPin, Camera, Eye, Upload, Scan, User } from '
 import { MissingPerson } from '@/types';
 import toast from 'react-hot-toast';
 
-const FACE_API = 'http://localhost:5001';
+const FACE_API = process.env.NEXT_PUBLIC_FACE_API_URL || 'http://localhost:5001';
 
 interface SightingRecord {
   id: string; address: string; description: string; photoUrl?: string;
@@ -18,12 +18,12 @@ interface MatchResult { caseId: string; name: string; confidence: number; verifi
 
 export default function Sightings() {
   const { cases, currentUser, updateStatus } = useAppStore();
-  const [sightings, setSightings]       = useState<SightingRecord[]>([]);
-  const [showForm, setShowForm]         = useState(false);
+  const [sightings, setSightings] = useState<SightingRecord[]>([]);
+  const [showForm, setShowForm] = useState(false);
   const [matchLoading, setMatchLoading] = useState(false);
   const [matchResults, setMatchResults] = useState<MatchResult[] | null>(null);
   const [previewPhoto, setPreviewPhoto] = useState<string | null>(null);
-  const [isDragging, setIsDragging]     = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const [form, setForm] = useState({ address: '', description: '' });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -32,7 +32,7 @@ export default function Sightings() {
 
   const handleFile = async (file: File) => {
     if (!file.type.startsWith('image/')) { toast.error('Only image files allowed'); return; }
-    if (file.size > 10 * 1024 * 1024)   { toast.error('Max file size is 10MB'); return; }
+    if (file.size > 10 * 1024 * 1024) { toast.error('Max file size is 10MB'); return; }
     const b64 = await fileToBase64(file);
     setPreviewPhoto(b64); setMatchResults(null);
     await runFaceMatch(b64);
@@ -44,7 +44,7 @@ export default function Sightings() {
     setMatchLoading(true);
     toast.loading('AI face matching in progress...', { id: 'fm' });
     try {
-      const res  = await fetch(`${FACE_API}/match`, {
+      const res = await fetch(`${FACE_API}/match`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sighting_photo: photoB64, cases: openCases.map(c => ({ caseId: c.caseId, name: c.name, photos: c.photos })) }),
       });
@@ -62,24 +62,24 @@ export default function Sightings() {
 
   const handleSubmit = async () => {
     if (!form.address || !form.description) { toast.error('Location and description required'); return; }
-    const bestMatch   = matchResults?.find(m => m.confidence >= 60);
+    const bestMatch = matchResults?.find(m => m.confidence >= 60);
     const matchedCase = bestMatch ? cases.find(c => c.caseId === bestMatch.caseId) : undefined;
 
     // ── Send to backend API (triggers email notification) ──────────────────
     if (matchedCase && bestMatch) {
       try {
         const token = localStorage.getItem('fti_token');
-        await fetch('http://localhost:5000/api/sightings', {
+        await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/sightings`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
           body: JSON.stringify({
-            caseId:      matchedCase.caseId,
-            latitude:    matchedCase.latitude  || 28.6139,
-            longitude:   matchedCase.longitude || 77.2090,
-            address:     form.address,
+            caseId: matchedCase.caseId,
+            latitude: matchedCase.latitude || 28.6139,
+            longitude: matchedCase.longitude || 77.2090,
+            address: form.address,
             description: form.description,
-            photoUrl:    previewPhoto || null,
-            confidence:  bestMatch.confidence,
+            photoUrl: previewPhoto || null,
+            confidence: bestMatch.confidence,
           }),
         });
         console.log('✅ Sighting saved to backend — email sent to case reporter');
@@ -167,9 +167,9 @@ export default function Sightings() {
                         <p className="text-xs text-gray-400 mt-1">Cases need real photos (not avatars) for matching</p>
                       </div>
                     ) : matchResults.slice(0, 4).map(m => {
-                      const mc   = cases.find(c => c.caseId === m.caseId);
+                      const mc = cases.find(c => c.caseId === m.caseId);
                       const high = m.confidence >= 70;
-                      const mid  = m.confidence >= 50;
+                      const mid = m.confidence >= 50;
                       return (
                         <div key={m.caseId} className={`flex items-center gap-3 p-3 rounded-xl border ${high ? 'bg-green-50 border-green-200' : mid ? 'bg-yellow-50 border-yellow-200' : 'bg-gray-50 border-gray-200'}`}>
                           {mc?.photos?.[0] && !mc.photos[0].includes('ui-avatars') ? (
