@@ -2,16 +2,17 @@
 import { useState } from 'react';
 import { useAppStore } from '@/store';
 import { api, saveToken } from '@/lib/api';
-import { Shield, Eye, EyeOff, LogIn, UserPlus, Phone, MapPin, Users, ArrowLeft, CheckCircle } from 'lucide-react';
+import { Shield, Eye, EyeOff, LogIn, UserPlus, Phone, MapPin, Users, ArrowLeft } from 'lucide-react';
 import { INDIAN_STATES } from '@/lib/mockData';
 import toast from 'react-hot-toast';
 
 type Mode = 'login' | 'signup';
+// Only self-service roles are listed. Police / admin accounts are created by
+// an existing admin after verification — the backend ignores any role sent
+// from the client, so adding them back here would do nothing anyway.
 const ROLES = [
   { value: 'volunteer', label: 'Volunteer', desc: 'Help search & report sightings' },
   { value: 'ngo', label: 'NGO Worker', desc: 'Organization working on cases' },
-  { value: 'police', label: 'Police Officer', desc: 'Law enforcement personnel' },
-  { value: 'admin', label: 'Admin', desc: 'Platform administrator' },
 ];
 
 export default function Login() {
@@ -117,11 +118,6 @@ export default function Login() {
                 {loading ? (<><svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" /></svg> Signing in...</>) : <><LogIn size={18} /> Sign In</>}
               </button>
             </form>
-            <button onClick={() => setLoginForm({ email: 'demo@findthemindia.app', password: 'demo1234' })}
-              className="w-full mt-4 p-3.5 bg-blue-50 hover:bg-blue-100 rounded-xl border border-blue-100 transition-colors text-left">
-              <p className="text-xs font-bold text-blue-700 mb-1 flex items-center gap-1.5"><CheckCircle size={12} /> Demo Credentials (click to fill)</p>
-              <p className="text-xs text-blue-600 font-mono">demo@findthemindia.app / demo1234</p>
-            </button>
           </div>
         )}
 
@@ -189,8 +185,8 @@ export default function Login() {
         )}
 
         <div className="text-center mt-5">
-          <p className="text-xs text-gray-400">Government of India Initiative</p>
-          <p className="text-xs text-gray-300">Ministry of Home Affairs • CCTNS Integration</p>
+          <p className="text-xs text-gray-400">An independent community platform</p>
+          <p className="text-xs text-gray-300">Not affiliated with any government body or police force</p>
         </div>
       </div>
     </div>
