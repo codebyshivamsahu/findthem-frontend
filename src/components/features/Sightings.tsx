@@ -20,7 +20,7 @@ interface SightingRecord {
 interface MatchResult { caseId: string; name: string; confidence: number; verified: boolean; }
 
 export default function Sightings() {
-  const { cases, currentUser } = useAppStore();
+  const { cases, currentUser, sightingCaseId, clearSightingCase } = useAppStore();
   const [sightings, setSightings] = useState<SightingRecord[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [matchLoading, setMatchLoading] = useState(false);
@@ -31,6 +31,16 @@ export default function Sightings() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [submitting, setSubmitting] = useState(false);
   const [caseQuery, setCaseQuery] = useState('');
+
+  // Arrived here from a case's "Report Sighting" button — open the form with
+  // that case already chosen.
+  useEffect(() => {
+    if (!sightingCaseId) return;
+    setForm(f => ({ ...f, caseId: sightingCaseId }));
+    setShowForm(true);
+    clearSightingCase();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sightingCaseId]);
 
   // Show what the server actually has, not just what this browser submitted.
   useEffect(() => {

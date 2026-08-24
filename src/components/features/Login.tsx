@@ -6,7 +6,7 @@ import { Shield, Eye, EyeOff, LogIn, UserPlus, Phone, MapPin, Users, ArrowLeft }
 import { INDIAN_STATES } from '@/lib/mockData';
 import toast from 'react-hot-toast';
 
-type Mode = 'login' | 'signup';
+type Mode = 'login' | 'signup' | 'forgot';
 // Only self-service roles are listed. Police / admin accounts are created by
 // an existing admin after verification — the backend ignores any role sent
 // from the client, so adding them back here would do nothing anyway.
@@ -22,6 +22,8 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [signupStep, setSignupStep] = useState(1);
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotSent, setForgotSent] = useState(false);
   const [signupForm, setSignupForm] = useState({
     name: '', email: '', password: '', confirmPassword: '',
     phone: '', role: 'volunteer', state: '', district: '',
@@ -40,9 +42,25 @@ export default function Login() {
     else toast.error('Invalid email or password');
   };
 
+  const handleForgot = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!forgotEmail) { toast.error('Enter your email address'); return; }
+    setLoading(true);
+    try {
+      await api.auth.forgotPassword(forgotEmail);
+      // The API answers the same way whether or not the account exists, so that
+      // this form can't be used to find out who is registered. Say the same here.
+      setForgotSent(true);
+    } catch {
+      setForgotSent(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSignupNext = () => {
     if (!signupForm.name || !signupForm.email || !signupForm.password) { toast.error('Name, email and password are required'); return; }
-    if (signupForm.password.length < 6) { toast.error('Password must be at least 6 characters'); return; }
+    if (signupForm.password.length < 8) { toast.error('Password must be at least 8 characters'); return; }
     if (signupForm.password !== signupForm.confirmPassword) { toast.error('Passwords do not match'); return; }
     setSignupStep(2);
   };
@@ -54,7 +72,9 @@ export default function Login() {
     try {
       const res = await api.auth.register({
         name: signupForm.name, email: signupForm.email, password: signupForm.password,
-        phone: signupForm.phone, role: signupForm.role, state: signupForm.state, district: signupForm.district,
+        // `role` is intentionally not sent — the API assigns it, and would strip
+        // it anyway. The picker below only records the user's stated intent.
+        phone: signupForm.phone, state: signupForm.state, district: signupForm.district,
       }) as any;
       if (res.success && res.data) {
         saveToken(res.data.token);
@@ -118,6 +138,47 @@ export default function Login() {
                 {loading ? (<><svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" /></svg> Signing in...</>) : <><LogIn size={18} /> Sign In</>}
               </button>
             </form>
+
+            <button type="button" onClick={() => { setMode('forgot'); setForgotEmail(loginForm.email); setForgotSent(false); }}
+              className="w-full mt-4 text-sm text-gray-500 hover:text-orange-600 transition-colors">
+              Forgot your password?
+            </button>
+          </div>
+        )}
+
+        {mode === 'forgot' && (
+          <div className="card p-7 shadow-xl border-gray-100">
+            {forgotSent ? (
+              <div className="text-center py-2">
+                <h2 className="text-lg font-bold text-gray-900 mb-2">Check your email</h2>
+                <p className="text-sm text-gray-500 mb-6">
+                  If an account exists for <strong>{forgotEmail}</strong>, a reset link is on its way.
+                  It expires in an hour. Check your spam folder if it doesn&apos;t arrive.
+                </p>
+                <button onClick={() => setMode('login')} className="btn-secondary w-full">Back to sign in</button>
+              </div>
+            ) : (
+              <>
+                <h2 className="text-lg font-bold text-gray-900 mb-1">Reset your password</h2>
+                <p className="text-sm text-gray-500 mb-5">
+                  Enter the email you signed up with and we&apos;ll send you a link to set a new password.
+                </p>
+                <form onSubmit={handleForgot} className="space-y-4">
+                  <div>
+                    <label className="label">Email Address</label>
+                    <input type="email" className="input" required placeholder="your@email.com"
+                      value={forgotEmail} onChange={e => setForgotEmail(e.target.value)} />
+                  </div>
+                  <button type="submit" disabled={loading} className="btn-primary w-full h-12 text-base">
+                    {loading ? 'Sending…' : 'Send reset link'}
+                  </button>
+                </form>
+                <button type="button" onClick={() => setMode('login')}
+                  className="w-full mt-4 text-sm text-gray-500 hover:text-gray-700 flex items-center justify-center gap-1.5">
+                  <ArrowLeft size={14} /> Back to sign in
+                </button>
+              </>
+            )}
           </div>
         )}
 

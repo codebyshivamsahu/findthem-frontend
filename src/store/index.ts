@@ -31,7 +31,12 @@ interface AppState {
   sidebarOpen: boolean;
   toggleSidebar: () => void;
   activeView: string;
+  /** Case a sighting form should open pre-filled with, set when the user hits
+   *  "Report Sighting" from a case. Cleared once the form has read it. */
+  sightingCaseId: string | null;
   setActiveView: (v: string) => void;
+  startSighting: (caseId: string) => void;
+  clearSightingCase: () => void;
   apiConnected: boolean;
   setApiConnected: (v: boolean) => void;
 }
@@ -79,6 +84,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   pagination: null,
   sidebarOpen: true,
   activeView: 'dashboard',
+  sightingCaseId: null,
   apiConnected: false,
 
   setUser: (user) => set({ currentUser: user, isAuthenticated: !!user }),
@@ -202,4 +208,6 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
   toggleSidebar: () => set(s => ({ sidebarOpen: !s.sidebarOpen })),
   setActiveView: (v) => set({ activeView: v }),
+  startSighting: (caseId) => set({ activeView: 'sightings', sightingCaseId: caseId, selectedCase: null }),
+  clearSightingCase: () => set({ sightingCaseId: null }),
 }));
