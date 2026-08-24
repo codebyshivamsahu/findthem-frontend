@@ -26,7 +26,8 @@ const TIMELINE_STEPS = [
 ];
 
 export default function CaseDetail({ person, onClose }: Props) {
-  const { updateStatus, currentUser, deleteCase } = useAppStore();
+  const { updateStatus, currentUser, deleteCase, startSighting } = useAppStore();
+  const [fullCase, setFullCase] = useState<any>(person);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const days = calculateDaysMissing(person.lastSeenDate);
   const currentIdx = STATUS_ORDER.indexOf(person.status);
@@ -39,7 +40,18 @@ export default function CaseDetail({ person, onClose }: Props) {
 
   useEffect(() => {
     if (activeTab === 'timeline') fetchUpdates();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
+
+  // The case list deliberately omits contact details, so the cached object we
+  // were handed has no phone or address. Fetch the full record for the modal.
+  useEffect(() => {
+    let cancelled = false;
+    api.cases.getById(person.id)
+      .then((res: any) => { if (!cancelled && res?.data) setFullCase(res.data); })
+      .catch(() => { /* keep the summary we already have */ });
+    return () => { cancelled = true; };
+  }, [person.id]);
 
   const fetchUpdates = async () => {
     setLoadingUpdates(true);
@@ -402,11 +414,11 @@ Current Age: ${person.age} | Projected Age: ${projectedAge}
                 <div className="space-y-2">
                   <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
                     <User size={14} className="text-gray-400" />
-                    <span className="text-sm text-gray-700 font-medium">{person.contactName}</span>
+                    <span className="text-sm text-gray-700 font-medium">{fullCase.contactName || '—'}</span>
                   </div>
-                  <a href={`tel:${person.contactPhone}`} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100 hover:bg-orange-50 transition-colors">
+                  <a href={`tel:${fullCase.contactPhone || ''}`} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100 hover:bg-orange-50 transition-colors">
                     <Phone size={14} className="text-gray-400" />
-                    <span className="text-sm font-mono text-gray-700">{person.contactPhone}</span>
+                    <span className="text-sm font-mono text-gray-700">{fullCase.contactPhone || '—'}</span>
                   </a>
                   {person.contactEmail && (
                     <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
@@ -557,7 +569,8 @@ Current Age: ${person.age} | Projected Age: ${projectedAge}
             className="btn-secondary flex items-center justify-center gap-1.5 text-xs py-2.5 flex-1">
             <Printer size={13} /> PDF Report
           </button>
-          <button className="btn-primary flex items-center justify-center gap-1.5 text-xs py-2.5 flex-1">
+          <button onClick={() => startSighting(person.caseId)}
+            className="btn-primary flex items-center justify-center gap-1.5 text-xs py-2.5 flex-1">
             <Flag size={13} /> Report Sighting
           </button>
           {currentUser?.role === 'admin' && (

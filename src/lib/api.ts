@@ -45,10 +45,16 @@ export const api = {
     login: (email: string, password: string) =>
       request('POST', '/api/auth/login', { email, password }, false),
 
-    register: (data: { name: string; email: string; password: string; phone?: string; role?: string; district?: string; state?: string }) =>
+    register: (data: { name: string; email: string; password: string; phone?: string; district?: string; state?: string }) =>
       request('POST', '/api/auth/register', data, false),
 
     me: () => request('GET', '/api/auth/me'),
+
+    forgotPassword: (email: string) =>
+      request('POST', '/api/auth/forgot-password', { email }, false),
+
+    resetPassword: (token: string, password: string) =>
+      request('POST', '/api/auth/reset-password', { token, password }, false),
   },
 
   // ─── Cases ─────────────────────────────────────────────────────────────────
@@ -61,6 +67,10 @@ export const api = {
     },
 
     get: (id: string) => request('GET', `/api/cases/${id}`, undefined, false),
+
+    // Full record including contact details (the list omits them for anonymous
+    // callers, so a cached list item has no phone or address).
+    getById: (id: string) => request('GET', `/api/cases/${id}`),
 
     create: (data: any) => request('POST', '/api/cases', data),
 

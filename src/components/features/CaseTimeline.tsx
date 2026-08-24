@@ -26,7 +26,7 @@ const TIMELINE_STEPS = [
 ];
 
 export default function CaseDetail({ person, onClose }: Props) {
-  const { updateStatus, currentUser } = useAppStore();
+  const { updateStatus, currentUser, startSighting } = useAppStore();
 
   // Hooks must run on every render, so the early return for a missing `person`
   // lives BELOW them — returning first made the hook order conditional.
@@ -526,7 +526,7 @@ Current Age: ${person.age} | Projected Age: ${projectedAge}
             className="btn-secondary flex items-center justify-center gap-1.5 text-xs py-2.5 flex-1">
             <Printer size={13} /> PDF Report
           </button>
-          <button className="btn-primary flex items-center justify-center gap-1.5 text-xs py-2.5 flex-1">
+          <button onClick={() => startSighting(person.caseId)} className="btn-primary flex items-center justify-center gap-1.5 text-xs py-2.5 flex-1">
             <Flag size={13} /> Report Sighting
           </button>
         </div>
