@@ -31,6 +31,25 @@ export default function Sightings() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [submitting, setSubmitting] = useState(false);
   const [caseQuery, setCaseQuery] = useState('');
+  const [reviewing, setReviewing] = useState<string | null>(null);
+
+  // Only police and admins can act on a report. Everyone else just sees status.
+  const canReview = currentUser?.role === 'police' || currentUser?.role === 'admin';
+
+  const handleReview = async (id: string, status: 'verified' | 'dismissed') => {
+    setReviewing(id);
+    try {
+      await api.sightings.review(id, status);
+      setSightings(list => list.map(s => (s.id === id ? { ...s, status } : s)));
+      toast.success(status === 'verified'
+        ? 'Marked verified — the family has been told a reviewer confirmed it'
+        : 'Sighting dismissed');
+    } catch (err: any) {
+      toast.error(err?.message || 'Could not update the sighting');
+    } finally {
+      setReviewing(null);
+    }
+  };
 
   // Arrived here from a case's "Report Sighting" button — open the form with
   // that case already chosen.
@@ -347,6 +366,27 @@ export default function Sightings() {
               <div className="flex items-center gap-1.5 text-xs text-gray-500 mb-1"><MapPin size={11} /><span>{s.address}</span></div>
               <p className="text-sm text-gray-700">{s.description}</p>
               <p className="text-xs text-gray-400 mt-2">{formatRelativeTime(s.reportedAt)} • {s.reportedBy}</p>
+
+              {canReview && s.status === 'pending' && (
+                <div className="mt-3 pt-3 border-t border-gray-100">
+                  <p className="text-[11px] text-gray-400 mb-2">
+                    Verifying tells the family a reviewer found this credible. It is not a
+                    confirmed identification — only the police can confirm that.
+                  </p>
+                  <div className="flex gap-2">
+                    <button type="button" disabled={reviewing === s.id}
+                      onClick={() => handleReview(s.id, 'verified')}
+                      className="flex-1 text-xs font-semibold py-2 rounded-lg border border-green-200 bg-green-50 text-green-700 hover:bg-green-100 transition-colors disabled:opacity-50">
+                      {reviewing === s.id ? 'Saving…' : 'Verify'}
+                    </button>
+                    <button type="button" disabled={reviewing === s.id}
+                      onClick={() => handleReview(s.id, 'dismissed')}
+                      className="flex-1 text-xs font-semibold py-2 rounded-lg border border-gray-200 bg-gray-50 text-gray-600 hover:bg-gray-100 transition-colors disabled:opacity-50">
+                      Dismiss
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         ))}
