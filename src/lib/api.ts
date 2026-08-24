@@ -55,6 +55,14 @@ export const api = {
 
     resetPassword: (token: string, password: string) =>
       request('POST', '/api/auth/reset-password', { token, password }, false),
+
+    verifyEmail: (token: string) =>
+      request('POST', '/api/auth/verify-email', { token }, false),
+
+    resendVerification: () => request('POST', '/api/auth/resend-verification'),
+
+    changePassword: (currentPassword: string, newPassword: string) =>
+      request('POST', '/api/auth/change-password', { currentPassword, newPassword }),
   },
 
   // ─── Cases ─────────────────────────────────────────────────────────────────
@@ -95,6 +103,10 @@ export const api = {
 
     create: (data: { caseId: string; latitude?: number; longitude?: number; address: string; description: string; photoUrl?: string }) =>
       request('POST', '/api/sightings', data),
+
+    // Police / admin only — the API enforces it, this is just the call.
+    review: (id: string, status: 'verified' | 'dismissed') =>
+      request('PATCH', `/api/sightings/${id}/status`, { status }),
 
     updateStatus: (id: string, status: 'verified' | 'dismissed' | 'pending') =>
       request('PATCH', `/api/sightings/${id}/status`, { status }),

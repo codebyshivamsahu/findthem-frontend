@@ -2,7 +2,8 @@
 import { useState } from 'react';
 import { useAppStore } from '@/store';
 import { INDIAN_STATES } from '@/lib/mockData';
-import { UserCircle, Mail, Phone, MapPin, Shield, Edit2, Save, LogOut, X, Key } from 'lucide-react';
+import { UserCircle, Mail, Phone, MapPin, Shield, Edit2, Save, LogOut, X, Key, AlertCircle } from 'lucide-react';
+import { api } from '@/lib/api';
 import toast from 'react-hot-toast';
 
 const ROLE_COLORS: Record<string, string> = {
@@ -16,6 +17,38 @@ export default function Profile() {
   const { currentUser, logout, setUser } = useAppStore();
   const [editing, setEditing]       = useState(false);
   const [changingPw, setChangingPw] = useState(false);
+  const [savingPw, setSavingPw] = useState(false);
+  const [resending, setResending] = useState(false);
+
+  // This used to just show a success toast without calling anything — the
+  // password never actually changed.
+  const handleChangePassword = async () => {
+    if (pwForm.newPw.length < 8) { toast.error('New password must be at least 8 characters'); return; }
+    if (pwForm.newPw !== pwForm.confirm) { toast.error('The two passwords do not match'); return; }
+    setSavingPw(true);
+    try {
+      await api.auth.changePassword(pwForm.current, pwForm.newPw);
+      toast.success('Password updated');
+      setChangingPw(false);
+      setPwForm({ current: '', newPw: '', confirm: '' });
+    } catch (err: any) {
+      toast.error(err?.message || 'Could not update the password');
+    } finally {
+      setSavingPw(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    setResending(true);
+    try {
+      const res: any = await api.auth.resendVerification();
+      toast.success(res?.message || 'Confirmation email sent');
+    } catch (err: any) {
+      toast.error(err?.message || 'Could not send the email');
+    } finally {
+      setResending(false);
+    }
+  };
   const [saving, setSaving]         = useState(false);
   const [form, setForm] = useState({ name: currentUser?.name || '', phone: currentUser?.phone || '', state: currentUser?.state || '', district: currentUser?.district || '' });
   const [pwForm, setPwForm] = useState({ current: '', newPw: '', confirm: '' });
@@ -115,23 +148,40 @@ export default function Profile() {
             <input type="password" className="input" placeholder="New password (min 6 characters)" value={pwForm.newPw} onChange={e => setPwForm(f => ({ ...f, newPw: e.target.value }))} />
             <input type="password" className="input" placeholder="Confirm new password" value={pwForm.confirm} onChange={e => setPwForm(f => ({ ...f, confirm: e.target.value }))} />
             {pwForm.confirm && pwForm.newPw !== pwForm.confirm && <p className="text-xs text-red-500">Passwords do not match</p>}
-            <button className="btn-primary text-sm" disabled={!pwForm.current || !pwForm.newPw || pwForm.newPw !== pwForm.confirm}
-              onClick={() => { toast.success('Password updated!'); setChangingPw(false); }}>Update Password</button>
+            <button className="btn-primary text-sm" disabled={savingPw || !pwForm.current || !pwForm.newPw || pwForm.newPw !== pwForm.confirm}
+              onClick={handleChangePassword}>{savingPw ? 'Updating…' : 'Update Password'}</button>
           </div>
         )}
       </div>
+
+      {!currentUser.verified && (
+        <div className="card p-4 border-yellow-200 bg-yellow-50/60">
+          <div className="flex items-start gap-3">
+            <AlertCircle size={18} className="text-yellow-600 shrink-0 mt-0.5" />
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-gray-900">Email not confirmed</p>
+              <p className="text-xs text-gray-600 mt-0.5 mb-2">
+                We sent a confirmation link to {currentUser.email} when you signed up.
+              </p>
+              <button onClick={handleResendVerification} disabled={resending}
+                className="text-xs font-semibold text-orange-600 hover:text-orange-700 disabled:opacity-50">
+                {resending ? 'Sending…' : 'Send it again'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="card p-6">
         <h3 className="font-bold text-gray-800 mb-4">Account Information</h3>
         <div className="space-y-3">
           {[
             { label: 'Account Type',        value: currentUser.role,                               bold: true },
-            { label: 'Verification Status', value: currentUser.verified ? '✓ Verified' : '⏳ Pending', color: currentUser.verified ? 'text-green-600' : 'text-yellow-600' },
             { label: 'User ID',             value: `${currentUser.id?.slice(0, 8)}...`,            mono: true },
-          ].map(({ label, value, bold, color, mono }) => (
+          ].map(({ label, value, mono }) => (
             <div key={label} className="flex justify-between text-sm">
               <span className="text-gray-400">{label}</span>
-              <span className={`font-semibold capitalize ${color || 'text-gray-800'} ${mono ? 'font-mono text-xs text-gray-500' : ''}`}>{value}</span>
+              <span className={`font-semibold capitalize text-gray-800 ${mono ? 'font-mono text-xs text-gray-500' : ''}`}>{value}</span>
             </div>
           ))}
         </div>
