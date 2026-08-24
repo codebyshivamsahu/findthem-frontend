@@ -1,7 +1,11 @@
 // src/lib/api.ts
-// Backend API client — connects Find Them India frontend to the Express + SQLite backend
+// Backend API client — connects Find Them India frontend to the Express + PostgreSQL API
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
+if (typeof window !== 'undefined' && !process.env.NEXT_PUBLIC_API_URL) {
+  console.warn('NEXT_PUBLIC_API_URL is not set — falling back to http://localhost:5000');
+}
 
 function getToken(): string | null {
   if (typeof window === 'undefined') return null;
@@ -67,7 +71,7 @@ export const api = {
 
     delete: (id: string) => request('DELETE', `/api/cases/${id}`),
 
-    getUpdates: (id: string) => request('GET', `/api/cases/${id}/updates`, undefined, false),
+    getUpdates: (id: string) => request('GET', `/api/cases/${id}/updates`),
 
     addUpdate: (id: string, message: string, type = 'note') =>
       request('POST', `/api/cases/${id}/updates`, { message, type }),
@@ -75,10 +79,11 @@ export const api = {
 
   // ─── Sightings ──────────────────────────────────────────────────────────────
   sightings: {
+    // Sightings name their reporter and pinpoint a location — signed-in only.
     list: (caseId?: string) =>
-      request('GET', `/api/sightings${caseId ? '?caseId=' + caseId : ''}`, undefined, false),
+      request('GET', `/api/sightings${caseId ? '?caseId=' + caseId : ''}`),
 
-    create: (data: { caseId: string; latitude: number; longitude: number; address: string; description: string; photoUrl?: string }) =>
+    create: (data: { caseId: string; latitude?: number; longitude?: number; address: string; description: string; photoUrl?: string }) =>
       request('POST', '/api/sightings', data),
 
     updateStatus: (id: string, status: 'verified' | 'dismissed' | 'pending') =>

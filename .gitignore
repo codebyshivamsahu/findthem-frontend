@@ -1,9 +1,12 @@
 node_modules/
 .next/
-.env
-.env.local
-.env.production
 out/
 dist/
+
+# Secrets — never commit
+.env
+.env.*
+!.env.example
+
 *.log
 .DS_Store

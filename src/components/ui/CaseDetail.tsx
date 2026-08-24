@@ -208,7 +208,7 @@ Current Age: ${person.age} | Projected Age: ${projectedAge}
   <div class="header">
     <div class="header-left">
       <h1>FindThem India</h1>
-      <p>National Missing Persons Portal | Ministry of Home Affairs, Govt. of India</p>
+      <p>Find Them India — an independent community platform. Not a government record.</p>
     </div>
     <div style="text-align:right; font-size:12px; opacity:0.85;">
       <div>Generated: ${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</div>

@@ -2,7 +2,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useAppStore } from '@/store';
-import { mockSightings } from '@/lib/mockData';
+import { api } from '@/lib/api';
 import { getStatusColor, calculateDaysMissing, cn } from '@/lib/utils';
 import { MapPin } from 'lucide-react';
 
@@ -10,7 +10,13 @@ export default function LiveMap() {
   const { cases } = useAppStore();
   const [MapComponents, setMapComponents] = useState<any>(null);
   const [filter, setFilter] = useState<'all' | 'missing' | 'sightings'>('all');
-  const sightings = mockSightings;
+  const [sightings, setSightings] = useState<any[]>([]);
+
+  useEffect(() => {
+    api.sightings.list()
+      .then((res: any) => setSightings(res?.data || []))
+      .catch(() => setSightings([]));
+  }, []);
 
   useEffect(() => {
     // Add Leaflet CSS
@@ -127,8 +133,8 @@ export default function LiveMap() {
                     <p className="font-bold text-sm text-blue-700">Sighting Report</p>
                     <p className="text-xs text-gray-500 mt-1">{s.address}</p>
                     <p className="text-xs text-gray-600 mt-1">{s.description}</p>
-                    {s.verifiedByAI && (
-                      <p className="text-xs font-bold text-green-600 mt-1">✓ AI verified ({s.confidence}% confidence)</p>
+                    {s.status === 'verified' && (
+                      <p className="text-xs font-bold text-green-600 mt-1">Verified by reviewer</p>
                     )}
                   </div>
                 </MapComponents.Popup>

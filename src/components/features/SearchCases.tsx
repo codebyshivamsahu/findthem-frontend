@@ -132,7 +132,7 @@ export default function SearchCases() {
       <div className="flex items-center justify-between">
         <p className="text-sm text-gray-500">
           Showing <span className="font-bold text-gray-800">{filteredCases.length}</span> cases
-          {filters.query && <span> for "<span className="text-orange-600">{filters.query}</span>"</span>}
+          {filters.query && <span> for &quot;<span className="text-orange-600">{filters.query}</span>&quot;</span>}
         </p>
         <select className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-white focus:outline-none">
           <option>Sort: Most Recent</option>

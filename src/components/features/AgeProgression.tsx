@@ -61,9 +61,9 @@ async function applyAgeProgression(imageUrl: string, yearsToAdd: number, current
       // Add watermark
       ctx.globalAlpha = 0.7;
       ctx.fillStyle   = 'white';
-      ctx.font        = `bold ${Math.max(14, canvas.width * 0.03)}px Arial`;
+      ctx.font        = `bold ${Math.max(10, canvas.width * 0.022)}px Arial`;
       ctx.textAlign   = 'right';
-      ctx.fillText(`Age Progression: +${yearsToAdd} yrs (Est. age ${currentAge + yearsToAdd})`, canvas.width - 10, canvas.height - 10);
+      ctx.fillText(`Filtered reference +${yearsToAdd} yrs (est. age ${currentAge + yearsToAdd}) — not a forensic likeness`, canvas.width - 10, canvas.height - 10);
       ctx.globalAlpha = 1;
 
       resolve(canvas.toDataURL('image/jpeg', 0.9));
@@ -99,7 +99,7 @@ export default function AgeProgression() {
     try {
       const result = await applyAgeProgression(photo, selectedYears, selectedCase.age);
       setResultImage(result);
-      toast.success(`Age progression generated: +${selectedYears} years`);
+      toast.success(`Reference image generated: +${selectedYears} years`);
     } catch (err) {
       toast.error('Failed to process image. Please try again.');
     } finally {
@@ -119,9 +119,9 @@ export default function AgeProgression() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div>
-        <h2 className="section-title text-lg">Age Progression</h2>
+        <h2 className="section-title text-lg">Age Reference Filter</h2>
         <p className="text-sm text-gray-400 mt-1">
-          Generate an estimated aged photo of a missing person using AI image processing
+          Apply a simple visual filter to a case photo — a rough reference image, not a forensic age progression
         </p>
       </div>
 
@@ -211,8 +211,11 @@ export default function AgeProgression() {
 
           <div className="p-3 bg-blue-50 rounded-xl border border-blue-100">
             <p className="text-xs text-blue-700">
-              <strong>Note:</strong> This is a simulated age progression for reference purposes.
-              Results may vary. Always consult forensic experts for official use.
+              <strong>This is not a forensic age progression.</strong> It applies an image
+              filter (skin-tone desaturation and a warm overlay) to suggest passing time.
+              It does not predict how anyone will actually look and must never be used to
+              identify a person or circulated as an official likeness. Real age progression
+              is done by trained forensic artists.
             </p>
           </div>
         </div>

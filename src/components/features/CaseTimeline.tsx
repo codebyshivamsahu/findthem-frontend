@@ -28,10 +28,8 @@ const TIMELINE_STEPS = [
 export default function CaseDetail({ person, onClose }: Props) {
   const { updateStatus, currentUser } = useAppStore();
 
-
-  if (!person) return null;  // ← yeh add karo line 30 pe
-
-
+  // Hooks must run on every render, so the early return for a missing `person`
+  // lives BELOW them — returning first made the hook order conditional.
   const [activeTab, setActiveTab] = useState<'info' | 'timeline' | 'age'>('info');
   const [caseUpdates, setCaseUpdates] = useState<any[]>([]);
   const [loadingUpdates, setLoadingUpdates] = useState(false);
@@ -41,7 +39,10 @@ export default function CaseDetail({ person, onClose }: Props) {
 
   useEffect(() => {
     if (activeTab === 'timeline' && person) fetchUpdates();
-  }, [activeTab]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab, person]);
+
+  if (!person) return null;
 
   if (!person) return null;
 
@@ -197,7 +198,7 @@ Current Age: ${person.age} | Projected Age: ${projectedAge}
   <div class="header">
     <div class="header-left">
       <h1>FindThem India</h1>
-      <p>National Missing Persons Portal | Ministry of Home Affairs, Govt. of India</p>
+      <p>Find Them India — an independent community platform. Not a government record.</p>
     </div>
     <div style="text-align:right; font-size:12px; opacity:0.85;">
       <div>Generated: ${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</div>

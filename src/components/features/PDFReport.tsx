@@ -87,7 +87,7 @@ function generatePDFHTML(person: MissingPerson): string {
       <div class="logo">FT</div>
       <div>
         <div class="org-name">FindThem India</div>
-        <div class="org-sub">National Missing Persons Portal • Ministry of Home Affairs</div>
+        <div class="org-sub">Independent community platform — not an official government document</div>
       </div>
     </div>
     <div class="doc-info">
@@ -344,8 +344,8 @@ export default function PDFReport() {
 
           <div className="p-3 bg-blue-50 rounded-xl border border-blue-100">
             <p className="text-xs text-blue-700">
-              <strong>How to save as PDF:</strong> Click "Print / PDF" → In print dialog,
-              select <strong>"Save as PDF"</strong> as printer → Save
+              <strong>How to save as PDF:</strong> Click &quot;Print / PDF&quot; → In print dialog,
+              select <strong>&quot;Save as PDF&quot;</strong> as printer → Save
             </p>
           </div>
         </div>
